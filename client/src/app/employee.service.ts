@@ -1,19 +1,20 @@
 import { Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Employee } from './employee';
+import { env } from '../../env';
 
 @Injectable({
   providedIn: 'root'
 })
 export class EmployeeService {
-  private url = 'http://localhost:5200';
+  private url = `${env.backendUrl}/employees`;
   employees$ = signal<Employee[]>([]);
   employee$ = signal<Employee>({} as Employee);
   
-  constructor(private httpClient: HttpClient) { }
+  constructor(private httpClient: HttpClient) { } 
 
   private refreshEmployees() {
-    this.httpClient.get<Employee[]>(`${this.url}/employees`)
+    this.httpClient.get<Employee[]>(`${this.url}`)
       .subscribe(employees => {
         this.employees$.set(employees);
       });
@@ -25,21 +26,21 @@ export class EmployeeService {
   }
 
   getEmployee(id: string) {
-    this.httpClient.get<Employee>(`${this.url}/employees/${id}`).subscribe(employee => {
+    this.httpClient.get<Employee>(`${this.url}/${id}`).subscribe(employee => {
       this.employee$.set(employee);
       return this.employee$();
     });
   }
 
   createEmployee(employee: Employee) {
-    return this.httpClient.post(`${this.url}/employees`, employee, { responseType: 'text' });
+    return this.httpClient.post(`${this.url}`, employee, { responseType: 'text' });
   }
 
   updateEmployee(id: string, employee: Employee) {
-    return this.httpClient.put(`${this.url}/employees/${id}`, employee, { responseType: 'text' });
+    return this.httpClient.put(`${this.url}/${id}`, employee, { responseType: 'text' });
   }
 
   deleteEmployee(id: string) {
-    return this.httpClient.delete(`${this.url}/employees/${id}`, { responseType: 'text' });
+    return this.httpClient.delete(`${this.url}/${id}`, { responseType: 'text' });
   }
 }
